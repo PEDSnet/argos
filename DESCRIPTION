@@ -1,0 +1,20 @@
+Package: argos
+Title: Affordances for Retrieving General Observational Stuff
+Version: 0.1
+Authors@R: 
+    c(person("Charles", "Bailey", , "baileyc@chop.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-8967-0662")),
+      person("Hanieh", "Razzaghi", , "razzaghih@chop.edu", role = c("aut")))
+Maintainer: Charles Bailey <baileyc@chop.edu>
+Description: Using databases following the OMOP Common Data Model or similar CDMs
+  typically involves a fair amount of common and repeated tasks.  This package
+  collects conventions, best practices, and affordances developed at PEDSnet
+  [https://pedsnet.org] to make interacting with this type of data easier and
+  more reproducible
+License: Artistic-2.0
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
