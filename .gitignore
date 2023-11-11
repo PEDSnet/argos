@@ -1,0 +1,15 @@
+*~
+~$*
+.Rhistory
+.Rapp.history
+.Rdata
+.DS_Store
+.DS_STore?
+*.zip
+*.nb.html
+*.pdf
+*.html
+*.md
+*.gpg
+.#*
+.Rproj.user
