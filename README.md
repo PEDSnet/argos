@@ -1,0 +1,27 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# argos
+
+<!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/argos)](https://CRAN.R-project.org/package=argos)
+<!-- badges: end -->
+
+The goal of argos is to simplify and standardize interacting with
+databases that use the OMOP Common Data Model or PCORnet Common Data
+Model. It collects affordances and recommended practices developed by
+PEDSnet in its conduct of clinical research.
+
+## Installation
+
+You can install the development version of argos like so:
+
+``` r
+devtools::install_github('PEDSnet/argos')
+```
+
+## End
