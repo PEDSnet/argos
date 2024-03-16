@@ -2,6 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @import R6
 #' @import DBI
 #' @importFrom dbplyr in_schema
 #' @import dplyr
@@ -14,11 +15,4 @@
 ## usethis namespace: end
 NULL
 
-# Set up internal environment at package load
-if (!exists('req_env')) req_env <- new.env(parent = emptyenv())
-
-.init_run <- function() {
-  # Invalidate cache when run starts
-  config_rm('_codesets')
-
-}
+.pkg_env <- new.env(parent = emptyenv())
