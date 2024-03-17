@@ -55,8 +55,15 @@ get_argos_default <- function() .pkg_env$defobj
 #' when the default session is changed.  Better still, only change the default
 #' session when you can make a clean break from previous activity.
 #'
-#' @param session An {argos} session object, or NULL.  In the latter case,
-#'   future calls using the functional interface will fail with an error.
+#' If you set the default session to `NULL`, then the next session created will
+#' become the default.  If you want there to be no default session from this
+#' point onward, then set the default session to `NA`, and it will not be
+#' overridden unless you do so manually.
+#'
+#' If there is no default session, calls using the functional interface will
+#'  fail with an error.
+#'
+#' @param session An {argos} session object, NA, or NULL.
 #'
 #' @return The session object.
 #' @examples
@@ -64,7 +71,8 @@ get_argos_default <- function() .pkg_env$defobj
 #' @export
 #' @md
 set_argos_default <- function(session) {
-  if ( !(is.null(session) || any(class(session) == 'argos')) )
-    stop('Argument to set_argos_default() must be argos session or NULL')
+  if ( !(any(class(session) == 'argos') ||
+         all(is.null(session)) || all(is.na(session))) )
+    stop('Argument to set_argos_default() must be argos session, NA, or NULL')
   .pkg_env$defobj <- session
 }
