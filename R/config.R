@@ -1,4 +1,4 @@
-#' Retrieve an item of site-specific configuration
+#'  Retrieve an item of site-specific configuration
 #'
 #' @param label The name of the configuration item
 #' @param value Optionally, a value to which to set the configuration
@@ -14,10 +14,16 @@
 #' # Retrieve the value
 #' config('years')[3])
 #' @md
-config <- function(label, value) {
-  if (! missing(value)) assign(label, value, pos = req_env)
-  invisible(get0(label, envir = req_env))
-}
+config <- function(label, value) get_argos_default()$config(label, value)
+
+argos$set(
+  'public', 'config',
+  #' @name config-method
+  #' @rdname config
+  function(label, value) {
+    if (! missing(value)) assign(label, value, pos = private$req_env)
+    invisible(get0(label, envir = private$req_env))
+  })
 
 #' Determine whether a configuration item is set
 #'
@@ -31,9 +37,15 @@ config <- function(label, value) {
 #' config_exists('is_there')  # TRUE
 #' config_exists('not_there') # FALSE
 #' @md
-config_exists <- function(label) {
-  exists(label, where = req_env)
-}
+config_exists <- function(label) get_argos_default()$config_exists(label)
+
+argos$set(
+  'public', 'config_exists',
+  #' @name config_exists-method
+  #' @rdname config_exists
+  function(label) {
+    exists(label, where = private$req_env)
+  })
 
 #' Remove a configuration item
 #'
@@ -47,10 +59,17 @@ config_exists <- function(label) {
 #' @examples
 #' config_rm('years')
 #' @md
-config_rm <- function(label) {
-  if (config_exists(label)) rm(list = label, pos = req_env)
-  NULL
-}
+config_rm <- function(label) get_argos_default()$config_rm(label)
+
+argos$set(
+  'public', 'config_rm',
+  #' @name config_rm-method
+  #' @rdname config_rm
+  function(label) {
+  if (config_exists(label)) rm(list = label, pos = private$req_env)
+    NULL
+  })
+
 #' Append to a configuration item
 #'
 #' Append new value(s) to a configuration item if the item already exists.  The
@@ -74,13 +93,20 @@ config_rm <- function(label) {
 #' config_append('strata', c = list('grp5', 'grp6'))
 #' config('strata')
 #' @md
-config_append <- function(label, value) {
-  if (config_exists(label)) {
-    config(label, c(config(label), value))
-  } else {
-    config(label, value)
-  }
-}
+config_append <-
+  function(label, value) get_argos_default()$config_append(label, value)
+
+argos$set(
+  'public', 'config_append',
+  #' @name config_append-method
+  #' @rdname config_append
+  function(label, value) {
+    if (self$config_exists(label)) {
+      self$config(label, c(self$config(label), value))
+    } else {
+      self$config(label, value)
+    }
+  })
 
 #' Retrieve a handle for accessing configuration items
 #'
@@ -100,13 +126,38 @@ config_append <- function(label, value) {
 #' conf[['years']] <- 2015L:202L
 #' if (2017L %in% conf$years) message("It's there")
 #' @md
-config_handle <- function() {
-  x <- req_env
-  class(x) <- '_co_req'
+config_handle <- function() get_argos_default()$config_handle()
+
+argos$set(
+  'public', 'config_handle',
+  #' @name config_handle-method
+  #' @rdname config_handle
+  function () {
+    x <- list()
+    x[['.session']] <- self
+    class(x) <- '_co_req'
+    x
+  })
+
+#' @rdname config_handle
+#' @export
+`[[._co_req` <- function(x, elt) unclass(x)$.session$config({{ elt }})
+
+#' @rdname config_handle
+#' @export
+`$._co_req` <- function(x, elt) unclass(x)$.session$config({{ elt }})
+
+#' @rdname config_handle
+#' @export
+`[[<-._co_req` <- function(x, elt, value) {
+  unclass(x)$.session$config({{ elt }}, value)
   x
 }
 
+#' @rdname config_handle
+#' @export
 `$<-._co_req` <- function(x, elt, value) {
-  config({{ elt }}, value)
-  req_env
+  unclass(x)$.session$config({{ elt }}, value)
+  x
 }
+
