@@ -1,45 +1,40 @@
-# Add a schema, if defined, and do table name substitution based on config
-.qual_name <- function(name, schema_tag, db = config('db_src')) {
-  if (inherits(name, c('ident_q', 'dbplyr_schema'))) return(name)
-  name_map <- config('table_names')
-  name <- base::ifelse(hasName(name_map, name), name_map[[name]], name)
-  if (! is.na(schema_tag)) {
-    if (config_exists(schema_tag)) schema_tag <- config(schema_tag)
-    if (! is.na(schema_tag)) {
-      if (packageVersion('dbplyr') < '2.0.0') {
-        name <- DBI::dbQuoteIdentifier(dbi_con(db), name)
-      }
-      name <- dbplyr::in_schema(schema_tag,name)
-    }
-  }
-  name
-}
+#' Table name construction based on config
+#'
+#' Given the base name of a database table and metadata about its intended
+#' schema, construct a fully qualified schema/table name for use in {dbplyr}.
+#'
+#' @param name A character vector with the base name of the table.  An attempt
+#'   is made to locate the base name in `config('table_names')`, and if this
+#'   is successful the replacement value is used.  Otherwise, the name is used
+#'   unchanged.
+#' @param schema_tag A character vector indicating the config element in which
+#'   to look up the schema name.  Common values include 'cdm_schema' or
+#'   'results_schema'.  If no such config element exists, then the
+#'   schema tag is used unchanged.
+#' @param db A database connection, used to peform quoting of identifiers.
+qual_name <- function(name, schema_tag, db = config('db_src'))
+  get_argos_default()$qual_name(name, schema_tag, db)
 
-# Add a request-specific tag to the name, if so configured
-.add_name_tag <- function(name, tag, db = config('db_src')) {
-  if ( ! is.na(tag)) {
-    add_tag <- function(x) {
-      no_tag <- ! grepl(paste0(tag,'$'), x)
-      x[no_tag] <- paste0(x[no_tag], tag)
-      x
-    }
-    if (inherits(name, c('ident_q', 'dbplyr_schema'))) {
-      # Best guess - works but relies on stringification of dbplyr::in_schema()
-      if (packageVersion('dbplyr') < '2.0.0') {
-        name <- gsub('["`\']', '', dbplyr::as.sql(name))
+argos$set(
+  'public', 'qual_name',
+  #' @name qual_name-method
+  #' @inherit qual_name
+  function(name, schema_tag, db = self$config('db_src')) {
+    if (inherits(name, c('ident_q', 'dbplyr_schema'))) return(name)
+    name_map <- self$config('table_names')
+    name <- base::ifelse(hasName(name_map, name), name_map[[name]], name)
+    if (! is.na(schema_tag)) {
+      if (self$config_exists(schema_tag)) schema_tag <- config(schema_tag)
+      if (! is.na(schema_tag)) {
+        if (packageVersion('dbplyr') < '2.0.0') {
+          name <- DBI::dbQuoteIdentifier(self$dbi_con(db), name)
+        }
+        name <- dbplyr::in_schema(schema_tag,name)
       }
-      else {
-        name <- gsub('["`\']', '', dbplyr::as.sql(name, dbi_con(db)))
-      }
-      parts <- regmatches(name, regexec('^"*(.+?)"*\\."*(.+?)"*$', name))
-      name <- dbplyr::in_schema(parts[[1]][2], add_tag(parts[[1]][3]))
     }
-    else {
-      name <- add_tag(name)
-    }
-  }
-  name
-}
+    name
+  })
+
 
 #' Construct a (possibly schema-qualified) intermediate result table name
 #'
@@ -92,19 +87,61 @@ intermed_name <- function(name = paste0(sample(letters, 12, replace = TRUE),
                           results_tag =  TRUE,
                           local_tag = NA,
                           schema = 'results_schema',
-                          db = config('db_src')) {
-  if (! is.na(local_tag) && (is.character(local_tag) || local_tag)) {
-    if (! is.character(local_tag)) local_tag <- config('local_name_tag')
-    name <- .add_name_tag(name, tag = local_tag, db = db)
-  }
-  if (! is.na(results_tag) && (is.character(results_tag) || results_tag)) {
-    if (! is.character(results_tag)) results_tag <- config('results_name_tag')
-    name <- .add_name_tag(name, tag = results_tag, db = db)
-  }
-  .qual_name(name = name,
-             schema_tag = base::ifelse(temporary, NA, schema),
-             db = db)
-}
+                          db = config('db_src'))
+  get_argos_default()$intermed_name(name, temporary, results_tag, local_tag,
+                                    schema, db)
+
+
+argos$set(
+  'public', 'intermed_name',
+  #' @name intermed_name-method
+  #' @inherit intermed_name
+  function(name = paste0(sample(letters, 12, replace = TRUE),
+                         collapse = ""),
+           temporary = ! self$config('retain_intermediates'),
+           results_tag =  TRUE,
+           local_tag = NA,
+           schema = 'results_schema',
+           db = self$config('db_src')) {
+    # Add a request-specific tag to the name, if so configured
+    .add_name_tag <- function(name, tag) {
+      if ( ! is.na(tag)) {
+        add_tag <- function(x) {
+          no_tag <- ! grepl(paste0(tag,'$'), x)
+          x[no_tag] <- paste0(x[no_tag], tag)
+          x
+        }
+        if (inherits(name, c('ident_q', 'dbplyr_schema'))) {
+          # Best guess - works but relies on stringification of dbplyr::in_schema()
+          if (packageVersion('dbplyr') < '2.0.0') {
+            name <- gsub('["`\']', '', dbplyr::as.sql(name))
+          }
+          else {
+            name <- gsub('["`\']', '', dbplyr::as.sql(name, self$dbi_con(db)))
+          }
+          parts <- regmatches(name, regexec('^"*(.+?)"*\\."*(.+?)"*$', name))
+          name <- dbplyr::in_schema(parts[[1]][2], add_tag(parts[[1]][3]))
+        }
+        else {
+          name <- add_tag(name)
+        }
+      }
+      name
+    }
+
+    if (! is.na(local_tag) && (is.character(local_tag) || local_tag)) {
+      if (! is.character(local_tag)) local_tag <- self$config('local_name_tag')
+      name <- .add_name_tag(name, tag = local_tag)
+    }
+    if (! is.na(results_tag) && (is.character(results_tag) || results_tag)) {
+      if (! is.character(results_tag))
+        results_tag <- self$config('results_name_tag')
+      name <- .add_name_tag(name, tag = results_tag)
+    }
+    self$qual_name(name = name,
+                   schema_tag = base::ifelse(temporary, NA, schema),
+                   db = db)
+  })
 
 #' Construct a fully qualified results table name
 #'
@@ -134,26 +171,28 @@ results_name <- function(name, results_tag =  TRUE, local_tag = NA,
 }
 
 # Try to figure out schema/table expressions in various forms
-.parse_tblspec <- function(spec) {
-  if (inherits(spec, 'Id')) {
-    elts <- spec
-  }
-  else if (inherits(spec, c('ident_q', 'dbplyr_schema'))) {
-    elts <- format(spec)
-  }
-  else if ((grepl('.', spec, fixed = TRUE) && ! grepl('["`]', spec))) {
-    # If we have an unquoted string with a '.', assume schema.table
-    elts <- unlist(strsplit(as.character(spec), '.', fixed = TRUE))
-  }
-  else if (grepl('["`].+["`]\\.["`]', spec)) {
-    # And one simple-minded try at a quoted identifier string
-    elts <-
-      gsub('["`]', '',
-           unlist(strsplit(as.character(spec), '["`].["`]')))
-  }
-  else {
-    elts <- spec
-  }
-  names(elts) <- rev(c('table', 'schema', 'catalog')[1:length(elts)])
-  elts
-}
+argos$set(
+  'private', 'parse_tblspec',
+  function(spec) {
+    if (inherits(spec, 'Id')) {
+      elts <- spec
+    }
+    else if (inherits(spec, c('ident_q', 'dbplyr_schema'))) {
+      elts <- format(spec)
+    }
+    else if ((grepl('.', spec, fixed = TRUE) && ! grepl('["`]', spec))) {
+      # If we have an unquoted string with a '.', assume schema.table
+      elts <- unlist(strsplit(as.character(spec), '.', fixed = TRUE))
+    }
+    else if (grepl('["`].+["`]\\.["`]', spec)) {
+      # And one simple-minded try at a quoted identifier string
+      elts <-
+        gsub('["`]', '',
+             unlist(strsplit(as.character(spec), '["`].["`]')))
+    }
+    else {
+      elts <- spec
+    }
+    names(elts) <- rev(c('table', 'schema', 'catalog')[1:length(elts)])
+    elts
+  })
