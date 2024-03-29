@@ -1,42 +1,22 @@
-.qual_tbl <-
+#' Connect to a database table using naming conventions
+#'
+#' This function passes the table name information to [qual_name()] to construct
+#' a fully-qualified table name, then opens a connection to that table.
+#'
+#' @inheritParams qual_name
+#' @param db The database connection to use when accessing the table
+qual_tbl <-
   function(name, schema_tag, db = config('db_src'))
-    tbl(db, .qual_name(name, schema_tag, db))
+    get_argos_default()$qual_tbl(name, schema_tag, db)
 
-#' Get DBI-compatible connection handle across dplyr generations
-#'
-#' Given a database connection the might have been created by [DBI::dbConnect()]
-#'   or my one of the `src_foo()` functions in versions of dbplyr, return a
-#'   DBI-compatible connection.
-#'
-#' Note that this function is essentially identical to [dbplyr::remote_con()]
-#'   for dbplyr connections.
-#'
-#' @param db A DBI or dbplyr connection.
-#'
-#' @return A DBI-compatible connection, or NULL if `db` is not a connection.
-#' @export
-#' @md
-dbi_con <- function(db) {
-  # R introspection is very limited, so best approach is to keep trying.
-  if (! any(is.object(db))) return(NULL)
-  rslt <- NULL
-  # DBI Connection
-  if (! is.null(tryCatch( DBI::dbDataType(db, 1L),
-                          error = function (e) NULL))) return(db)
-  # Modern dbplyr
-  if (any(class(db) == 'tbl_sql') &&
-      ! is.null(tryCatch( { rslt <- remote_con(db) },
-                          error = function (e) NULL))) return(rslt)
-  # Older dbplyr query - breaks encapsulation
-  if (exists('src', where = db) &&
-      ! is.null(tryCatch( { rslt <- db$src$con },
-                          error = function (e) NULL))) return(rslt)
-  # Older dbplyr connection - breaks encapsulation
-  if (exists('con', where = db) &&
-      ! is.null(tryCatch( { rslt <- db$con },
-                          error = function (e) NULL))) return(rslt)
-  rslt
-}
+argos$set(
+  'public', 'qual_tbl',
+  #' @name qual_tbl-method
+  #' @inherit qual_tbl
+  function(name, schema_tag, db = self$config('db_src')) {
+    tbl(db, self$qual_name(name, schema_tag, db))
+})
+
 
 #' Connect to an existing CDM data table
 #'
@@ -48,7 +28,15 @@ dbi_con <- function(db) {
 #' @md
 cdm_tbl <-
   function(name, db = config('db_src'))
-    .qual_tbl(name, 'cdm_schema', db)
+    get_argos_default()$cdm_tbl(name, db)
+
+argos$set(
+  'public', 'cdm_tbl',
+  #' @name cdm_tbl-method
+  #' @inherit cdm_tbl
+  function(name, db = self$config('db_src')) {
+    self$qual_tbl(name, 'cdm_schema', db)
+  })
 
 #' Connect to an existing CDM vocabulary table
 #'
@@ -60,7 +48,15 @@ cdm_tbl <-
 #' @md
 vocabulary_tbl <-
   function(name, db = config('db_src'))
-    .qual_tbl(name, 'vocabulary_schema', db)
+    get_argos_default()$vocabulary_tbl(name, db)
+
+argos$set(
+  'public', 'vocabulary_tbl',
+  #' @name vocabulary_tbl-method
+  #' @inherit vocabulary_tbl
+  function(name, db = self$config('db_src')) {
+    self$qual_tbl(name, 'vocaulary_schema', db)
+  })
 
 
 #' Connect to a result table
@@ -72,18 +68,28 @@ vocabulary_tbl <-
 #'
 #' @param name The name of the table
 #' @param db The database connection; you will rarely need to specify this.
-#' @param results_tag The request tag to add to the table name (see [intermed_name()]).
-#' @param local_tag The local tag to add to the table name (see [intermed_name()]).
+#' @param results_tag The request tag to add to the table name
+#'    (see [intermed_name()]).
+#' @param local_tag The local tag to add to the table name
+#'    (see [intermed_name()]).
 #'
 #' @return A [dplyr::tbl()]] pointing to the table
 #' @seealso [intermed_name()], for more information on how the table
 #'   specification is determined.
 #' @export
 #' @md
-results_tbl <- function(name, db = config('db_src'),
-                        results_tag =  TRUE, local_tag = FALSE) {
-    .qual_tbl(intermed_name(name, temporary = FALSE,
-                            results_tag = results_tag,
-                            local_tag = local_tag),
-              'results_schema', db)
-}
+results_tbl <-
+  function(name, db = config('db_src'), results_tag = TRUE, local_tag = FALSE)
+    get_argos_default()$results_tbl(name, db, results_tag, local_tag)
+
+argos$set(
+  'public', 'results_tbl',
+  #' @name results_tbl-method
+  #' @inherit results_tbl
+  function(name, db = self$config('db_src'),
+           results_tag =  TRUE, local_tag = FALSE) {
+    self$qual_tbl(self$intermed_name(name, temporary = FALSE,
+                                     results_tag = results_tag,
+                                     local_tag = local_tag),
+                  'results_schema', db)
+  })
