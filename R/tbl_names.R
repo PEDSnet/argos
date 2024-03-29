@@ -11,7 +11,7 @@
 #'   to look up the schema name.  Common values include 'cdm_schema' or
 #'   'results_schema'.  If no such config element exists, then the
 #'   schema tag is used unchanged.
-#' @param db A database connection, used to peform quoting of identifiers.
+#' @param db A database connection, used to perform quoting of identifiers.
 qual_name <- function(name, schema_tag, db = config('db_src'))
   get_argos_default()$qual_name(name, schema_tag, db)
 
