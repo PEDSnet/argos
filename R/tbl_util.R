@@ -69,7 +69,7 @@ argos$set(
 #' @param db A [dplyr::src()] or DBI connection
 #' @param name The name of the table, or an object created by
 #'   [dbplyr::in_schema()], or a DBI-style path vector
-#' @param tenporary Whether `table` is a temporary table
+#' @param temporary Whether `table` is a temporary table
 #' @param fail_if_missing If TRUE, raise an error if `table` does not exist
 #'
 #' @return TRUE, invisibly, if no error is encountered; an exception is raised
@@ -119,7 +119,7 @@ argos$set(
 #' Get DBI-compatible connection handle across dplyr generations
 #'
 #' Given a database connection the might have been created by [DBI::dbConnect()]
-#'   or my one of the `src_foo()` functions in versions of dbplyr, return a
+#'   or by one of the `src_foo()` functions in versions of dbplyr, return a
 #'   DBI-compatible connection.
 #'
 #' Note that this function is essentially identical to [dbplyr::remote_con()]

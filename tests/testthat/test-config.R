@@ -4,7 +4,7 @@ set_argos_default(sess)
 sess2 <- argos$new()
 
 test_that('Config exists is false for nonexistent element (method)', {
-  expect_false(config_exists('test_elt'))
+  expect_false(sess$config_exists('test_elt'))
 })
 test_that('Config exists is false for nonexistent element (function)', {
   expect_false(config_exists('test_elt'))
