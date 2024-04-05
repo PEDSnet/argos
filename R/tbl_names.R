@@ -26,9 +26,9 @@ argos$set(
     if (! is.na(schema_tag)) {
       if (self$config_exists(schema_tag)) schema_tag <- config(schema_tag)
       if (! is.na(schema_tag)) {
-        if (packageVersion('dbplyr') < '2.0.0') {
+        if (packageVersion('dbplyr') < '2.0.0') { # nocov start
           name <- DBI::dbQuoteIdentifier(self$dbi_con(db), name)
-        }
+        } # nocov end
         name <- dbplyr::in_schema(schema_tag,name)
       }
     }
@@ -113,9 +113,9 @@ argos$set(
         }
         if (inherits(name, c('ident_q', 'dbplyr_schema'))) {
           # Best guess - works but relies on stringification of dbplyr::in_schema()
-          if (packageVersion('dbplyr') < '2.0.0') {
+          if (packageVersion('dbplyr') < '2.0.0') { # nocov start
             name <- gsub('["`\']', '', dbplyr::as.sql(name))
-          }
+          } # nocov end
           else {
             name <- gsub('["`\']', '', dbplyr::as.sql(name, self$dbi_con(db)))
           }
@@ -165,13 +165,22 @@ argos$set(
 #' @export
 #' @md
 results_name <- function(name, results_tag =  TRUE, local_tag = NA,
-                         db = config('db_src')) {
-  intermed_name(name = name, temporary = FALSE, results_tag = results_tag,
-                local_tag = local_tag, db = db)
-}
+                         db = config('db_src'))
+  get_argos_default()$results_name(name, results_tag, local_tag, db)
+
+argos$set(
+  'public', 'results_name',
+  #' @name results_name-method
+  #' @inherit results_name
+  function(name, results_tag =  TRUE, local_tag = NA,
+           db = self$config('db_src')) {
+    self$intermed_name(name = name, temporary = FALSE,
+                       results_tag = results_tag, local_tag = local_tag,
+                       db = db)
+})
 
 # Try to figure out schema/table expressions in various forms
-argos$set(
+argos$set( # nocov start
   'private', 'parse_tblspec',
   function(spec) {
     if (inherits(spec, 'Id')) {
@@ -195,4 +204,5 @@ argos$set(
     }
     names(elts) <- rev(c('table', 'schema', 'catalog')[1:length(elts)])
     elts
+    # nocov end
   })
