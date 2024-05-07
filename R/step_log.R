@@ -28,14 +28,21 @@
 #' @seealso [append_sum()], [output_sum()]
 #' @export
 #' @md
-init_sum <- function(..., set_default = TRUE) {
-  x <- tibble(!!! dots_list(...),
-              qry_site = config('qry_site'),
-              stamp = Sys.time(),
-              used = paste(proc.time(), collapse = ';'))
-  if (set_default) config('_step_log', x)
-  x
-}
+init_sum <- function(..., set_default = TRUE)
+  get_argos_default()$init_sum(..., set_default)
+
+argos$set(
+  'public', 'init_sum',
+  #' @name init_sum-method
+  #' @inherit init_sum
+  function(..., set_default = TRUE) {
+    x <- tibble(!!! dots_list(...),
+                qry_site = self$config('qry_site'),
+                stamp = Sys.time(),
+                used = paste(proc.time(), collapse = ';'))
+    if (set_default) self$config('_step_log', x)
+    x
+  })
 
 #' Add rows to a step log
 #'
@@ -54,16 +61,23 @@ init_sum <- function(..., set_default = TRUE) {
 #' @seealso [init_sum()], [output_sum()]
 #' @export
 #' @md
-append_sum <- function(..., step_log = NA) {
-  events <- if (is.na(step_log)) config('_step_log') else step_log
-  x <- dplyr::union(tibble(!!! dots_list(...),
-                           qry_site = config('qry_site'),
-                           stamp = Sys.time(),
-                           used = paste(proc.time(), collapse = ';')),
-                    events)
-  if (is.na(step_log)) config('_step_log', x)
-  x
-}
+append_sum <-function(..., step_log = NA)
+  get_argos_default()$append_sum(..., step_log = step_log)
+
+argos$set(
+  'public', 'append_sum',
+  #' @name append_sum-method
+  #' @inherit append_sum
+  function(..., step_log = NA) {
+    events <- if (is.na(step_log)) self$config('_step_log') else step_log
+    x <- dplyr::union(tibble(!!! dots_list(...),
+                             qry_site = self$config('qry_site'),
+                             stamp = Sys.time(),
+                             used = paste(proc.time(), collapse = ';')),
+                      events)
+    if (is.na(step_log)) self$config('_step_log', x)
+    x
+  })
 
 #' Output step log
 #'
@@ -79,11 +93,20 @@ append_sum <- function(..., step_log = NA) {
 #' @seealso [init_sum()], [append_sum()]
 #' @export
 #' @md
-output_sum <- function(step_log = config('_step_log'),
-                       name = paste0(config('qry_site'), '_steps'),
-                       ...) {
-  output_tbl(step_log, name = name, ...)
-}
+output_sum <- function(step_log = self$config('_step_log'),
+                       name = paste0(self$config('qry_site'), '_steps'),
+                       ...)
+  get_argos_default()$output_sum(step_log, name, ...)
+
+argos$set(
+  'public', 'output_sum',
+  #' @name output_sum-method
+  #' @inherit output_sum
+  function(step_log = self$config('_step_log'),
+           name = paste0(self$config('qry_site'), '_steps'),
+           ...) {
+    self$output_tbl(step_log, name = name, ...)
+  })
 
 #' Count unique elements in a resultset.
 #'
@@ -91,15 +114,22 @@ output_sum <- function(step_log = config('_step_log'),
 #' number of unique elements in that column. This can be used as one
 #' of the outputs for [append_sum()] calls in the driver file.
 #'
-#' @param rset The [dplyr::tbl()] describing the resultset
+#' @param rs The [dplyr::tbl()] describing the resultset
 #' @param id_col The name of the column in which to count elements.
 #'
 #' @return The number of distinct values
 #' @export
 #' @md
-distinct_ct <- function(rs, id_col = 'person_id') {
-  # A little clunky, but n_distinct() doesn't support quoting of
-  # identifiers to the DBMS
-  rs %>% select(all_of(id_col)) %>% distinct() %>%
-    summarize(dist_ct = n()) %>% pull(dist_ct)
-}
+distinct_ct <-  function(rs, id_col = 'person_id')
+  get_argos_default()$distinct_ct(rs, id_col)
+
+argos$set(
+  'public', 'distinct_ct',
+  #' @name distinct_ct-method
+  #' @inherit distinct_ct
+  function(rs, id_col = 'person_id') {
+    # A little clunky, but n_distinct() doesn't support quoting of
+    # identifiers to the DBMS
+    rs %>% select(all_of(id_col)) %>% distinct() %>%
+      summarize(dist_ct = n()) %>% pull(dist_ct)
+  })
