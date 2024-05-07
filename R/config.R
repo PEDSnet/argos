@@ -19,7 +19,7 @@ config <- function(label, value) get_argos_default()$config(label, value)
 argos$set(
   'public', 'config',
   #' @name config-method
-  #' @rdname config
+  #' @inherit config
   function(label, value) {
     if (! missing(value)) assign(label, value, pos = private$req_env)
     invisible(get0(label, envir = private$req_env))
@@ -42,7 +42,7 @@ config_exists <- function(label) get_argos_default()$config_exists(label)
 argos$set(
   'public', 'config_exists',
   #' @name config_exists-method
-  #' @rdname config_exists
+  #' @inherit config_exists
   function(label) {
     exists(label, where = private$req_env)
   })
@@ -64,7 +64,7 @@ config_rm <- function(label) get_argos_default()$config_rm(label)
 argos$set(
   'public', 'config_rm',
   #' @name config_rm-method
-  #' @rdname config_rm
+  #' @inherit config_rm
   function(label) {
   if (config_exists(label)) rm(list = label, pos = private$req_env)
     NULL
@@ -99,7 +99,7 @@ config_append <-
 argos$set(
   'public', 'config_append',
   #' @name config_append-method
-  #' @rdname config_append
+  #' @inherit config_append
   function(label, value) {
     if (self$config_exists(label)) {
       self$config(label, c(self$config(label), value))
@@ -131,7 +131,7 @@ config_handle <- function() get_argos_default()$config_handle()
 argos$set(
   'public', 'config_handle',
   #' @name config_handle-method
-  #' @rdname config_handle
+  #' @inherit config_handle
   function () {
     x <- list()
     x[['.session']] <- self
@@ -139,22 +139,22 @@ argos$set(
     x
   })
 
-#' @rdname config_handle
+#' @inherit config_handle
 #' @export
 `[[._co_req` <- function(x, elt) unclass(x)$.session$config({{ elt }})
 
-#' @rdname config_handle
+#' @inherit config_handle
 #' @export
 `$._co_req` <- function(x, elt) unclass(x)$.session$config({{ elt }})
 
-#' @rdname config_handle
+#' @inherit config_handle
 #' @export
 `[[<-._co_req` <- function(x, elt, value) {
   unclass(x)$.session$config({{ elt }}, value)
   x
 }
 
-#' @rdname config_handle
+#' @inherit config_handle
 #' @export
 `$<-._co_req` <- function(x, elt, value) {
   unclass(x)$.session$config({{ elt }}, value)
