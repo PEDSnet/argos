@@ -23,7 +23,7 @@ db_exists_table <- function(db = config('db_src'), name)
 argos$set(
   'public', 'db_exists_table',
   #' @name db_exists_table-method
-  #' @inherits db_exists_table
+  #' @inherit db_exists_table
   function(db = self$config('db_src'), name) {
     con <- self$dbi_con(db)
     elts <- private$parse_tblspec(name)
