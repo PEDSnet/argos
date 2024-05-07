@@ -61,7 +61,7 @@ argos$set(
 #' @seealso [init_sum()], [output_sum()]
 #' @export
 #' @md
-append_sum <-function(..., step_log = NA)
+append_sum <- function(..., step_log = NA)
   get_argos_default()$append_sum(..., step_log = step_log)
 
 argos$set(
@@ -120,7 +120,7 @@ argos$set(
 #' @return The number of distinct values
 #' @export
 #' @md
-distinct_ct <-  function(rs, id_col = 'person_id')
+distinct_ct <- function(rs, id_col = 'person_id')
   get_argos_default()$distinct_ct(rs, id_col)
 
 argos$set(
