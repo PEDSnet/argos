@@ -37,16 +37,28 @@ compute_new <- function(tblx,
                         name = paste0(sample(letters, 12, replace = TRUE),
                                       collapse = ""),
                         temporary = ! config('retain_intermediates'),
-                        ...) {
+                        ...)
+  get_argos_default()$compute_new(tblx, name, temporary, ...)
+
+argos$set(
+  'public', 'compute_new',
+  #' @name compute_new-method
+  #' @inherit compute_new
+  function(tblx,
+           name = paste0(sample(letters, 12, replace = TRUE),
+                         collapse = ""),
+           temporary = ! self$config('retain_intermediates'),
+           ...) {
     if (!inherits(name, c('ident_q', 'dbplyr_schema')) && length(name) == 1) {
       name <- gsub('\\s+','_', name, perl = TRUE)
-      name <- intermed_name(name, temporary)
+      name <- self$intermed_name(name, temporary)
     }
-    con <- dbi_con(tblx)
-    if (db_exists_table(con, name)) db_remove_table(con, name)
-    if (config('db_trace')) {
+    con <- self$dbi_con(tblx)
+    # Broken in dbplyr, so do it ourselves
+    if (self$db_exists_table(con, name)) self$db_remove_table(con, name)
+    if (self$config('db_trace')) {
       show_query(tblx)
-      if (config('can_explain')) explain(tblx)
+      if (self$config('can_explain')) explain(tblx)
       message(' -> ',
               base::ifelse(packageVersion('dbplyr') < '2.0.0',
                            dbplyr::as.sql(name),
@@ -55,12 +67,12 @@ compute_new <- function(tblx,
       message(start)
     }
     rslt <- dplyr::compute(tblx, name = name, temporary = temporary, ...)
-    if (config('db_trace')) {
+    if (self$config('db_trace')) {
       end  <- Sys.time()
       message(end, ' ==> ', format(end - start))
     }
     rslt
-}
+  })
 
 
 #' Like collect(), but allow for trace output
@@ -76,23 +88,29 @@ compute_new <- function(tblx,
 #'   with similar tracing
 #' @export
 #' @md
-collect_new <- function(tblx, ...) {
-  if (config('db_trace')) {
-    if (inherits(tblx, 'tbl_sql')) {
-      show_query(tblx)
-      if (config('can_explain')) explain(tblx)
+collect_new <- function(tblx, ...) get_argos_default()$collect_new(tblx, ...)
+
+argos$set(
+  'public', 'collect_new',
+  #' @name collect_new-method
+  #' @inherit collect_new
+  function(tblx, ...) {
+    if (self$config('db_trace')) {
+      if (inherits(tblx, 'tbl_sql')) {
+        show_query(tblx)
+        if (self$config('can_explain')) explain(tblx)
+      }
+      message(' -> collect')
+      start <- Sys.time()
+      message(start)
     }
-    message(' -> collect')
-    start <- Sys.time()
-    message(start)
-  }
-  rslt <- collect(tblx)
-  if (config('db_trace')) {
-    end  <- Sys.time()
-    message(end, ' ==> ', format(end - start))
-  }
-  rslt
-}
+    rslt <- collect(tblx)
+    if (self$config('db_trace')) {
+      end  <- Sys.time()
+      message(end, ' ==> ', format(end - start))
+    }
+    rslt
+  })
 
 #' Like copy_to(), but allow for trace output
 #'
@@ -122,34 +140,45 @@ copy_to_new <- function(dest = config('db_src'), df,
                         name = deparse(substitute(df)),
                         overwrite = TRUE,
                         temporary = ! config('retain_intermediates'),
-                        ...) {
-  name <- intermed_name(name, temporary = temporary)
-  if (config('db_trace')) {
-    message(' -> copy_to')
-    start <- Sys.time()
-    message(start)
-    message('Data: ', deparse(substitute(df)))
-    message('Table name: ',
-            base::ifelse(packageVersion('dbplyr') < '2.0.0',
-                         dbplyr::as.sql(name),
-                         dbplyr::as.sql(name, dbi_con(dest))),
-            ' (temp: ', temporary, ')')
-    message('Data elements: ', paste(tbl_vars(df), collapse = ','))
-    message('Rows: ', NROW(df))
-  }
-  if (overwrite &&
-      db_exists_table(dest, name)) {
-    db_remove_table(dest, name)
-  }
-  rslt <- dplyr::copy_to(dest = dest, df = df, name = name,
-                         overwrite = overwrite, temporary = temporary,
-                         ...)
-  if (config('db_trace')) {
-    end  <- Sys.time()
-    message(end, ' ==> ', format(end - start))
-  }
-  rslt
-}
+                        ...)
+  get_argos_default()$copy_to_new(dest, name, overwrite, temporary, ...)
+
+argos$set(
+  'public', 'copy_to_new',
+  #' @name copy_to_new-method
+  #' @inherit copy_to_new
+  function(dest = self$config('db_src'), df,
+           name = deparse(substitute(df)),
+           overwrite = TRUE,
+           temporary = ! self$config('retain_intermediates'),
+           ...) {
+    name <- self$intermed_name(name, temporary = temporary)
+    if (self$config('db_trace')) {
+      message(' -> copy_to')
+      start <- Sys.time()
+      message(start)
+      message('Data: ', deparse(substitute(df)))
+      message('Table name: ',
+              base::ifelse(packageVersion('dbplyr') < '2.0.0',
+                           dbplyr::as.sql(name),
+                           dbplyr::as.sql(name, dbi_con(dest))),
+              ' (temp: ', temporary, ')')
+      message('Data elements: ', paste(tbl_vars(df), collapse = ','))
+      message('Rows: ', NROW(df))
+    }
+    if (overwrite &&
+        self$db_exists_table(dest, name)) {
+      self$db_remove_table(dest, name)
+    }
+    rslt <- dplyr::copy_to(dest = dest, df = df, name = name,
+                           overwrite = overwrite, temporary = temporary,
+                           ...)
+    if (self$config('db_trace')) {
+      end  <- Sys.time()
+      message(end, ' ==> ', format(end - start))
+    }
+    rslt
+  })
 
 
 # Write data to a CSV file in a the appropriate results dir
@@ -217,28 +246,39 @@ output_tbl <- function(data, name = NA, local = FALSE,
                        file = base::ifelse(config('results_target') == 'file',
                                            TRUE, FALSE),
                        db = if (! file) config('results_target') else NA,
-                       results_tag = TRUE, ...) {
-  if (is.na(name)) name <- quo_name(enquo(data))
+                       results_tag = TRUE, ...)
+  get_argos_default()$output_tbl(data, name, local, file, db, results_tag, ...)
 
-  if (file) {
-    rslt <- .output_csv(data, name, local)
-  }
+argos$set(
+  'public', 'output_tbl',
+  #' @name output_tbl-method
+  #' @inherit output_tbl
+  function(data, name = NA, local = FALSE,
+           file = base::ifelse(self$config('results_target') == 'file',
+                               TRUE, FALSE),
+           db = if (! file) self$config('results_target') else NA,
+           results_tag = TRUE, ...) {
+    if (is.na(name)) name <- quo_name(enquo(data))
 
-  # Conditional logic is a little convoluted here to allow for legacy behavior
-  # of allowing Boolean value for db
-  if ( is.object(db) || (!is.na(db) && db)) {
-    if (is.logical(db)) db <- config('db_src')
-    rname <- intermed_name(name, temporary = FALSE, db = db,
-                           results_tag = results_tag, local_tag = local)
-    if (any(class(data)  == 'tbl_sql') &&
-        identical(dbi_con(data), dbi_con(db))) {
-      rslt <- compute_new(data, rname, temporary = FALSE, ...)
+    if (file) {
+      rslt <- .output_csv(data, name, local)
     }
-    else {
-      rslt <- copy_to_new(db, collect_new(data), rname,
-                          temporary = FALSE, overwrite = TRUE, ...)
-    }
-  }
 
-  invisible(rslt)
-}
+    # Conditional logic is a little convoluted here to allow for legacy behavior
+    # of allowing Boolean value for db
+    if ( is.object(db) || (!is.na(db) && db)) {
+      if (is.logical(db)) db <- config('db_src')
+      rname <- self$intermed_name(name, temporary = FALSE, db = db,
+                                  results_tag = results_tag, local_tag = local)
+      if (any(class(data)  == 'tbl_sql') &&
+          identical(self$dbi_con(data), self$dbi_con(db))) {
+        rslt <- self$compute_new(data, rname, temporary = FALSE, ...)
+      }
+      else {
+        rslt <- self$copy_to_new(db, self$collect_new(data), rname,
+                                 temporary = FALSE, overwrite = TRUE, ...)
+      }
+    }
+
+    invisible(rslt)
+  })
