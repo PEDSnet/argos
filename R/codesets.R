@@ -172,17 +172,21 @@ argos$set(
   #' @name get_descendants-method
   #' @inherit get_descendants
   function(codeset, table_name = NA) {
-    if (is.na(table_name)) {
-      table_name <- dbplyr:::tbl_desc(codeset)
-      table_name <- unlist(regmatches(table_name,
-                                      regexec('(\\w+)>', table_name,
-                                              perl = TRUE)))[2]
-      table_name <- paste0(table_name, '_exp')
+    if (is.null(table_name)) {
+      if (any(class(codeset) == 'tbl_dbi')) {
+        table_name <- remote_name(codeset)
+        if (! is.null(table_name)) table_name <- paste0(table_name, '_exp')
+      }
+      if (is.null(table_name))
+        table_name <- hash(remote_query(codeset) %||%
+                             paste0(sample(letters, 12), collapse = ''))
     }
 
-    if (is.null(self$config('_codesets'))) self$config('_codesets', list())
-    cache <- self$config('_codesets')
-    if (! is.null(cache[[table_name]])) return(cache[[table_name]])
+    if (self$config('cache_enabled')) {
+      if (is.null(self$config('_codesets'))) self$config('_codesets', list())
+      cache <- self$config('_codesets')
+      if (! is.null(cache[[table_name]])) return(cache[[table_name]])
+    }
 
     codes <- self$vocabulary_tbl('concept_ancestor') %>%
       inner_join(codeset, by = c('ancestor_concept_id' = 'concept_id')) %>%
@@ -193,7 +197,11 @@ argos$set(
              vocabulary_id) %>%
       distinct() %>%
       self$compute_new(indexes = list('concept_id'), name = table_name)
-    cache[[table_name]] <- codes
-    self$config('_codesets', cache)
+
+    if (self$config('cache_enabled')) {
+      cache[[table_name]] <- codes
+      self$config('_codesets', cache)
+    }
+
     codes
   })
