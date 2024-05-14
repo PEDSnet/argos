@@ -1,16 +1,21 @@
 # Top-level code for execution of data request
 
 # Load additional packages at runtime
-.setup_pkgs <- function(pkgs = config('extra_packages')) {
-  if (! is.null(pkgs) && ! is.na(pkgs)) {
-    for (pkg in pkgs)
-      suppressPackageStartupMessages(library(pkg, character.only = TRUE))
-  }
-}
+.setup_pkgs <-function(pkgs = config('extra_packages'))
+  get_argos_default()$.setup_pkgs(pkgs)
+
+argos$set(
+  'private', '.setup_pkgs',
+  function(pkgs = config('extra_packages')){
+    if (! all(is.null(pkgs)) && ! all(is.na(pkgs))) {
+      for (pkg in pkgs)
+        suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+    }
+  })
 
 #' Set up the execution environment
 #'
-#' The .load() function sources the R files needed to execute the query and sets
+#' This function sources the R files needed to execute the query and sets
 #' up the execution environment.  In particular, all of the framework files, as
 #' well as request-specific files in the code_dir with names matching
 #' `cohort_*.R` or `analyze_*.R` will be sourced.
@@ -20,7 +25,10 @@
 #' interactive session to re-source changed code or to re-establish a connection
 #' to the database.
 #'
-#' **N.B.** You will almost never have to edit this function.
+#' One principle to note is that changes to the global environment, such as
+#' loading packages, will be visible to all argos objects.  If you are managing
+#' multiple sessions in different objects, be careful about the potential to
+#' change global state during setup.
 #'
 #' @param here The name of the top-level directory for the request.  The default
 #'   is `config('base_dir')` if the config function has been set up, or the
@@ -34,18 +42,18 @@
 #' @md
 setup <- function(here = base::ifelse(typeof(get('config')) == 'closure',
                                       config('base_dir'), base_dir),
-                  driver = 'driver.R') {
-    source(file.path(here, 'code', 'config.R'))
+                  driver = 'driver.R')
+  get_argos_default()$setup(here, driver)
+
+argos$set(
+  'public', 'setup',
+  #' @name setup-method
+  #' @inherit setup
+  function(here = base::ifelse(typeof(get('config')) == 'closure',
+                               self$config('base_dir'), base_dir),
+           driver = 'driver.R') {
     source(file.path(here, 'code', 'req_info.R'))
     source(config('site_info'))
-    source(file.path(here, config('subdirs')$code_dir, 'shims.R'))
-    source(file.path(here, config('subdirs')$code_dir, 'codesets.R'))
-    for (fn in list.files(file.path(here, config('subdirs')$code_dir),
-                        'util_.+\\.R', full.names = TRUE))
-      source(fn)
-     for (fn in list.files(file.path(here, config('subdirs')$code_dir),
-                        'addon_.+\\.R', full.names = TRUE))
-      source(fn)
     for (fn in list.files(file.path(here, config('subdirs')$code_dir),
                           'cohort_.+\\.R', full.names = TRUE))
       source(fn)
@@ -55,23 +63,23 @@ setup <- function(here = base::ifelse(typeof(get('config')) == 'closure',
     source(file.path(here, config('subdirs')$code_dir, 'cohorts.R'))
     source(file.path(here, config('subdirs')$code_dir, driver))
 
-    .setup_pkgs()
+    private$.setup_pkgs()
 
-    .env_setup()
+    private$.env_setup()
 
     for (def in c('retain_intermediates', 'results_schema')) {
-      if (! config_exists(def) || is.na(config(def)))
-        config(def, config(paste0('default_', def)))
+      if (! self$config_exists(def) || is.na(self$config(def)))
+        self$config(def, self$config(paste0('default_', def)))
     }
 
-    if (config_exists('db_src')) {
-      ci <- DBI::dbGetInfo(config('db_src'))
+    if (self$config_exists('db_src')) {
+      ci <- DBI::dbGetInfo(self$config('db_src'))
       message('Default database connection is: ',
               ci$dbname, '@', ci$host)
     }
 
     here
-}
+  })
 
 
 #' Set up and execute a data request
@@ -88,8 +96,15 @@ setup <- function(here = base::ifelse(typeof(get('config')) == 'closure',
 #' @return The result of [.run()].
 #' @export
 #' @md
-run_request <- function(base_dir, driver = 'driver.R') {
-    base_dir <- .load(base_dir)
-    on.exit(.env_cleanup())
-    .run()
-}
+run_request <- function(base_dir, driver = 'driver.R')
+  get_argos_default()$run_request(base_dir, driver)
+
+argos$set(
+  'public', 'run_request',
+  #' @name run_request-method
+  #' @inherit run_request
+  function(base_dir, driver = 'driver.R') {
+    base_dir <- self$setup(base_dir)
+    on.exit(private$.env_cleanup())
+    self$run()
+  })
