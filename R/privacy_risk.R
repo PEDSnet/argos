@@ -14,14 +14,21 @@
 #'   replacement values in rep_col
 #' @export
 #' @md
-gen_xwalk <- function(input, id_col, rep_col = 'seq_id') {
-  idq <- quo_name(id_col)
-  req <- quo_name(rep_col)
+gen_xwalk <- function(input, id_col, rep_col = 'seq_id')
+  get_argos_default()$gen_xwalk(input, id_col, rep_col)
 
-  input %>% select(!!idq) %>% distinct() %>%
-    arrange_at(vars(!!idq)) %>% # Oracle insists on an ordering
-    mutate( !!req := as.integer(row_number()))
-}
+argos$set(
+  'public', 'gen_xwalk',
+  #' @name gen_xwalk-method
+  #' @inherit gen_xwalk
+  function(input, id_col, rep_col = 'seq_id') {
+    idq <- quo_name(id_col)
+    req <- quo_name(rep_col)
+
+    input %>% select(!!idq) %>% distinct() %>%
+      arrange_at(vars(!!idq)) %>% # Oracle insists on an ordering
+      mutate( !!req := as.integer(row_number()))
+  })
 
 #' Add or replace one ID column with another
 #'
@@ -47,17 +54,29 @@ new_id <- function(data,
                    id_col = paste0(deparse(substitute(data)), '_id'),
                    xwalk = select_at(data, vars(id_col)) %>% distinct() %>%
                      mutate(seq_id = row_number()),
-                   replace = FALSE) {
+                   replace = FALSE)
+  get_argos_default()$new_id(data, id_col, xwalk, replace)
 
-  xform <- data %>% left_join(xwalk, by = id_col)
-  if (replace) {
-    newcol <- grep(id_col, tbl_vars(xwalk),
-                   invert = TRUE, value = TRUE, fixed = TRUE)[1]
-    xform <- xform %>% select(-one_of(id_col)) %>%
-      rename_at(vars(newcol), function (x) { id_col })
-  }
-  xform
-}
+
+argos$set(
+  'public', 'new_id',
+  #' @name new_id-method
+  #' @inherit new_id
+  function(data,
+           id_col = paste0(deparse(substitute(data)), '_id'),
+           xwalk = select_at(data, vars(id_col)) %>% distinct() %>%
+             mutate(seq_id = row_number()),
+           replace = FALSE) {
+
+    xform <- data %>% left_join(xwalk, by = id_col)
+    if (replace) {
+      newcol <- grep(id_col, tbl_vars(xwalk),
+                     invert = TRUE, value = TRUE, fixed = TRUE)[1]
+      xform <- xform %>% select(-one_of(id_col)) %>%
+        rename_at(vars(newcol), function (x) { id_col })
+    }
+    xform
+  })
 
 #' Convert dates to ages
 #'
@@ -73,43 +92,50 @@ new_id <- function(data,
 #' @return The scrubbed tbl
 #' @export
 #' @md
-dates_to_ages <- function(cohort,
-                          person_tbl = cdm_tbl('person')) {
-  cohort_vars <- tbl_vars(cohort)
+dates_to_ages <- function(cohort, person_tbl = cdm_tbl('person'))
+  get_argos_default()$dates_to_ages(cohort, person_tbl)
 
-  if (! any(grepl('_date', cohort_vars))) return(cohort)
+argos$set(
+  'public', 'dates_to_ages',
+  #' @name dates_to_ages-method
+  #' @inherit dates_to_ages
+  function(cohort, person_tbl = self$cdm_tbl('person')) {
 
-  if (any(cohort_vars == 'birth_date')) {
-    cohort <- cohort %>% mutate(birth_dt = birth_date)
-  }
-  else {
-    if (! any(cohort_vars == 'birth_datetime')) {
-      cohort <- inner_join(cohort,
-                           select(person_tbl, person_id, birth_datetime),
-                           by = 'person_id')
+    cohort_vars <- tbl_vars(cohort)
+
+    if (! any(grepl('_date', cohort_vars))) return(cohort)
+
+    if (any(cohort_vars == 'birth_date')) {
+      cohort <- cohort %>% mutate(birth_dt = birth_date)
+    }
+    else {
+      if (! any(cohort_vars == 'birth_datetime')) {
+        cohort <- inner_join(cohort,
+                             select(person_tbl, person_id, birth_datetime),
+                             by = 'person_id')
       }
-    cohort <- mutate(cohort,
-                     birth_dt = sql('cast("birth_datetime" as date)'))
-  }
+      cohort <- mutate(cohort,
+                       birth_dt = sql('cast("birth_datetime" as date)'))
+    }
 
-  cohort <- cohort %>%
-    mutate_at(vars(ends_with('_date')), list(age = ~(. - birth_dt))) %>%
-    rename_at(vars(ends_with('_date_age')), list(~sub('_date', '', .))) %>%
-    select_at(vars(-ends_with('_date'))) %>%
-    select_at(vars(-ends_with('_datetime'))) %>%
-    select_at(vars(-ends_with('_time'))) %>%
-    select(-birth_dt)
+    cohort <- cohort %>%
+      mutate_at(vars(ends_with('_date')), list(age = ~(. - birth_dt))) %>%
+      rename_at(vars(ends_with('_date_age')), list(~sub('_date', '', .))) %>%
+      select_at(vars(-ends_with('_date'))) %>%
+      select_at(vars(-ends_with('_datetime'))) %>%
+      select_at(vars(-ends_with('_time'))) %>%
+      select(-birth_dt)
 
 
-  # Fix mutate_at()'s "helpful" removal of source column name when there is
-  # only one column changed
-  dates <- grep('_date', cohort_vars, value = TRUE)
-  if (length(dates) == 1) {
-    agenew <- sub('_date', '_age',dates[1])
-    cohort <- cohort %>% rename(!! agenew := age)
-  }
-  cohort
-}
+    # Fix mutate_at()'s "helpful" removal of source column name when there is
+    # only one column changed
+    dates <- grep('_date', cohort_vars, value = TRUE)
+    if (length(dates) == 1) {
+      agenew <- sub('_date', '_age',dates[1])
+      cohort <- cohort %>% rename(!! agenew := age)
+    }
+    cohort
+  })
 
 
 #' Replace person IDs and convert dates to ages
@@ -131,13 +157,22 @@ dates_to_ages <- function(cohort,
 #' @export
 #' @md
 scrub_person_info <- function(cohort, person_xwalk = NA,
-                              person_tbl = cdm_tbl('person')) {
-  if (any(is.na(person_xwalk))) {
-    person_xwalk <- cohort %>% distinct(person_id) %>%
-      gen_xwalk('person_id')
-  }
+                              person_tbl = cdm_tbl('person'))
+  get_argos_default()$scrub_person_info(cohort, person_xwalk, person_tbl)
 
-  cohort %>%
-    dates_to_ages(person_tbl) %>%
-    new_id(id_col = 'person_id', xwalk = person_xwalk, replace = TRUE)
-}
+
+argos$set(
+  'public', 'scrub_person_info',
+  #' @name scrub_person_info-method
+  #' @inherit scrub_person_info
+  function(cohort, person_xwalk = NA,
+           person_tbl = self$cdm_tbl('person')) {
+    if (any(is.na(person_xwalk))) {
+      person_xwalk <- cohort %>% distinct(person_id) %>%
+        self$gen_xwalk('person_id')
+    }
+
+    cohort %>%
+      self$dates_to_ages(person_tbl) %>%
+      self$new_id(id_col = 'person_id', xwalk = person_xwalk, replace = TRUE)
+  })
