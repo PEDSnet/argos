@@ -186,7 +186,10 @@ argos$set( # nocov start
     if (inherits(spec, 'Id')) {
       elts <- spec
     }
-    else if (inherits(spec, c('ident_q', 'dbplyr_schema'))) {
+    else if (inherits(spec, c('dbplyr_schema'))) {
+      elts <- unlist(spec)
+    }
+    else if (inherits(spec, c('ident_q'))) {
       elts <- format(spec)
     }
     else if ((grepl('.', spec, fixed = TRUE) && ! grepl('["`]', spec))) {
