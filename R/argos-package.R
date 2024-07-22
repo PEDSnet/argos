@@ -3,6 +3,7 @@
 
 ## usethis namespace: start
 #' @import R6
+#' @import rlang
 #' @import DBI
 #' @importFrom dbplyr in_schema
 #' @import dplyr
