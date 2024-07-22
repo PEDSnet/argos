@@ -8,9 +8,9 @@
 #' if it fits your working style better, you can have multiple active sessions
 #' and operate on each via method calls on each session object.
 #'
-#'
+#' @export
 argos <-
-  R6Class('argos',
+  R6::R6Class('argos',
           public = list(
             #' @field name A string with a name or short description
             name = NA_character_,
