@@ -108,7 +108,7 @@ argos$set(
   #' @name load_codeset-method
   #' @inherit load_codeset
   function(name, col_types = 'iccc', table_name = name,
-           undexes = list('concept_id'), full_path = FALSE,
+           indexes = list('concept_id'), full_path = FALSE,
            db = self$config('db_src')) {
 
     if (self$config('cache_enabled')) {
