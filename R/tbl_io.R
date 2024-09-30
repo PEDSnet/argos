@@ -141,7 +141,7 @@ copy_to_new <- function(dest = config('db_src'), df,
                         overwrite = TRUE,
                         temporary = ! config('retain_intermediates'),
                         ...)
-  get_argos_default()$copy_to_new(dest, name, overwrite, temporary, ...)
+  get_argos_default()$copy_to_new(dest, df, name, overwrite, temporary, ...)
 
 argos$set(
   'public', 'copy_to_new',
