@@ -55,7 +55,7 @@ argos$set(
   #' @name vocabulary_tbl-method
   #' @inherit vocabulary_tbl
   function(name, db = self$config('db_src')) {
-    self$qual_tbl(name, 'vocaulary_schema', db)
+    self$qual_tbl(name, 'vocabulary_schema', db)
   })
 
 
