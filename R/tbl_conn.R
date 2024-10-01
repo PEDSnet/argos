@@ -43,7 +43,7 @@ argos$set(
 #' @param name The name of the table
 #' @param db The database connection; you will rarely need to specify this.
 #'
-#' @return A [dplyr::tbl()]] pointing to the table
+#' @return A [dplyr::tbl()] pointing to the table
 #' @export
 #' @md
 vocabulary_tbl <-
