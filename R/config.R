@@ -12,7 +12,7 @@
 #' config('years', c(2015L:2020L))
 #'
 #' # Retrieve the value
-#' config('years')[3])
+#' config('years')[3]
 #' @md
 config <- function(label, value) get_argos_default()$config(label, value)
 
