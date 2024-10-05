@@ -68,7 +68,7 @@ argos$set(
 lookback_facts <-  function(data, index_tbl, event_date_col = NA,
                             index_date_col = 'cohort_start_date',
                             link_col = 'person_id', lookback = 365L)
-  get_argos_default()$lookback_facts(data, index_tbl, even_date_col,
+  get_argos_default()$lookback_facts(data, index_tbl, event_date_col,
                                      index_date_col, link_col, lookback)
 
 argos$set(
