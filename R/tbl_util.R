@@ -1,8 +1,7 @@
 #' Test whether a table exists in a database, schema-aware
 #'
-#' This function has the same purpose as [DBI::dbExistsTable()] or
-#' [dbplyr::db_has_table()], but neither of those are able to test a
-#' table name created by [dbplyr::in_schema()].
+#' This function has the same purpose as [DBI::dbExistsTable()], but neither of
+#' those are able to test a table name created by [dbplyr::in_schema()].
 #'
 #' Note that `db` is the first parameter, even though the default is almost
 #' always what you want, in order to maintain a calling sequence consistent with
