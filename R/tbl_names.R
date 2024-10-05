@@ -1,7 +1,7 @@
 #' Table name construction based on config
 #'
 #' Given the base name of a database table and metadata about its intended
-#' schema, construct a fully qualified schema/table name for use in {dbplyr}.
+#' schema, construct a fully qualified schema/table name for use in `dbplyr`.
 #'
 #' @param name A character vector with the base name of the table.  An attempt
 #'   is made to locate the base name in `config('table_names')`, and if this
@@ -75,7 +75,7 @@ argos$set(
 #'   result, if `temporary` is false.  If a config element of the same name
 #'   exists, its value is used; otherwise, the `schema` parameter is used as
 #'   the schema name itself.
-#' @param db A database connection, used in more recent versions of dbplyr to
+#' @param db A database connection, used in more recent versions of `dbplyr` to
 #'   ensure quoting of table names matches what the database expects
 #'
 #' @return The resultant name
