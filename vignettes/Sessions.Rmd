@@ -1,0 +1,92 @@
+---
+title: "Sessions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sessions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Argos Sessions
+
+Central to the use of `argos` is the concept of a _session_.  Each session
+encapsulates information about the database being queried, aspects of data
+structure, and how to handle results, among other things.  As you write
+your code, you're also free to add other information to the session via the
+`config()` method.  You are also able to use {R6}'s options for adding
+methods to a session object, though if you pick generic function names you
+run the small risk of colliding with a method added in a future version of
+`argos`.
+
+There are two ways to interact with `argos` sessions:
+
+### Session object
+
+The `argos` constructor returns a session object, constructed using the {R6}
+system.  You can call any of the functions `argos` provides as methods directly
+on the session object, using the {R6} convention _object_`$`_method_`(...)`.
+These method calls will use the session's state to fill in data such as the
+database connection, database structure, cached codesets, results schema, etc.
+This is never a bad idea for code clarity, but is particularly useful when
+you are managing multiple sessions in your code, and need to direct a query to
+a particular database.
+
+There are a few caveats worth keeping in mind.  First, each session encapsulates
+a particular database connection, and the traffic for that connection.  Results
+from different sessions, even though they may be analytically related and even
+in the same database, are likely to be seen by the DBI layer as distinct.  If
+you need to combine results from different sessions in a single operation (e.g.
+joining two sets of results), you may need to do something like store one set of
+results in a (non-temporary) table that the other session can then read, or use
+the `copy` parameter to `dbplyr` query functions to create a temporary copy of
+one session's data in the other session.  Depending on the type of analysis, it
+may also make the most sense to work in the database to create a small analytic
+dataset, then `dbplyr::collect()` it to create a local copy on which other R
+functions can operate.
+
+Similarly, all `argos` configuration data is session-specific.  If you have
+multiple sessions active, setting an element via a `config()` call on one
+session doesn't propagate to other sessions, by design.  If you need to make
+a global change, you need to update each session.
+
+Second, because `argos` is built to facilitate interactions with a database via
+the `dplyr`/`dbplyr` ecosystem, its API is optimized to support the function
+chaining idiom that is common in this ecosystem.  This means that `argos`
+methods typically return a query object that can be passed to another `dplyr`
+function or saved using a method like [output_tbl()], and not the `argos` object
+itself.  Conversely, this design does not facilitate method chaining on the
+session object itself.  We hope this results in cleaner and more readable code.
+
+### Default session
+
+Many analyses will use only one `argos` session, and while there's a good
+theoretical argument for referring to the session directly, it does result
+in extra typing and can impact code clarity.  For these single-session use
+cases, `argos` provides the concept of a default session.  You can explicitly
+designate a default session by calling  `set_argos_default()` with a session
+object - note that this is a package function and not a method call. Similarly,
+you can retrieve the current default session via `get_argos_default()`.
+
+As a convenience, `argos` registers the first session you create in a given R
+interpreter as the default session automatically.  This allows you to write
+single session code using a simple style:
+
+```{r eval=FALSE}
+library(argos)
+argos$new(name = 'My project')
+
+...
+
+config('db_src', srcr('my_db_info'))
+
+...
+
+cdm_tbl('person') %>%
+  filter(birth_date > as.Date('2015-01-01')) %>% 
+  my_cohort_analysis()
+```
+
+If you don't want a default session - for example, because you want to enforce
+explicit session use as a coding standard - you can disable this by calling
+`set_argos_default(NULL)`.  Just remember that the next time you create a new
+session, it'll be set as the default and you'll need to clear it.
