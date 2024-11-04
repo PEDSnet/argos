@@ -1,6 +1,10 @@
 ---
 title: "Configuring argos sessions"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Configuring argos sessions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## Session Configuration Data
