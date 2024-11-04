@@ -1,4 +1,4 @@
-#'  Retrieve an item of site-specific configuration
+#'  Retrieve or set an item of session-specific configuration
 #'
 #' @param label The name of the configuration item
 #' @param value Optionally, a value to which to set the configuration
