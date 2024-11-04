@@ -64,12 +64,16 @@ test_that('Config handle can be retrieved (function)', {
   expect_identical(chm, chf)
 })
 
-test_that('Config elements can be set via handle', {
-  expect_identical(chm[['test_bracket']] <- 'success', 'success')
-  expect_identical(chm$test_dollar <- 'succeeded', 'succeeded')
+test_that('Config elements can be retrieved via handle', {
+  config('test_helt', 'valued')
+    expect_identical(chm[['test_helt']], 'valued')
+  expect_identical(chf$test_helt, 'valued')
 })
 
-test_that('Config elements can be retrieved via handle', {
-  expect_identical(chm[['test_bracket']], 'success')
-  expect_identical(chm$test_dollar, 'succeeded')
+test_that('Config elements can be set via handle', {
+  chm[['test_bracket']] <- 'success'
+  expect_identical(chf[['test_bracket']], 'success')
+  chm$test_dollar <- 'succeeded'
+  expect_identical(chf$test_dollar, 'succeeded')
 })
+
