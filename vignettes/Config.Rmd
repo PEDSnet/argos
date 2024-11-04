@@ -1,0 +1,66 @@
+---
+title: "Configuring argos sessions"
+output: html_document
+---
+
+## Session Configuration Data
+
+Each `argos` sesson maintains its own configuration data as part of its
+internal state.  This typically includes database connections, information
+about database structure, and option settings.  You interact with configuration
+data primarily via the `config()` method, which you use to both set and retrieve
+configuration data. There are also methods to check whether a configuration
+item has been set (even to `NA` or `NULL`), or to delete an item  It's
+worth noting that these functions are meant to operate on one configuration
+item at a time.  If you want to deal with a list of items, you may find
+functions like `purrr::map()` or `lapply()` helpful.
+
+If you prefer to operate on configuration data in a more traditional R coding
+paradigm, you can retrieve an object that behaves like a list of configuration
+items via the `config_handle()` method.  (It's important to remember that this
+object is different from the session object itself.). You can use standard
+list indexing operations to interact with configuration items, like
+`if (handle[['target']] == 'exploratory') do_exploratory_analysis()` or
+`handle$recent_pts <- FALSE`.  Other operations are not supported; if you break
+the session, you get to keep the pieces.
+
+## Setting Up Session Configuration
+
+Because `argos` relies on a number of configuration items internally (see
+below), you'll usually want to set at least the basic items before doing
+anything else in a session.  You can do this with a series of `config()`
+calls early in your code, or if you're building another API on top of `argos`,
+you may provide your users with some way to direct configuration settings.
+
+For the common use case of an analytic project or query, `argos` provides the
+`make_request_tree()` method, which generates a set of file templates that
+includes the configuration items needed for a typical session.  You can edit
+these templates to set values appropriate for your work, and set up the session
+each time with a simple `source('site/run.R')`.
+
+## Common Configuration Items
+
+The configuration system is available to you for whatever data you want to
+store in a session, but `argos` makes used of a number of items internally as
+well.  You will usually want to make sure these items are set to appropriate
+values so that your session will do useful things for you.
+
+```{r vars, echo=FALSE, message=FALSE, warning=FALSE}
+require(dplyr)
+require(knitr)
+require(kableExtra)
+require(readr)
+
+prettify_kable <- function(data) {
+  rslt <- data %>% kable(digits = 4, format.args = list(big.mark = ','))
+  if (knitr::is_html_output()) rslt <- rslt %>%
+    kable_styling(bootstrap_options = c("striped", "hover")) %>%
+    column_spec(1, bold = T, border_right = T)
+  rslt
+}
+
+read_csv('./argos_config_vars.csv') %>% arrange(Option) %>% prettify_kable() 
+```
+
+
+

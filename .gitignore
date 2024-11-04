@@ -13,3 +13,5 @@
 *.gpg
 .#*
 .Rproj.user
+inst/doc
+docs
