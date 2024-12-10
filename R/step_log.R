@@ -93,8 +93,8 @@ argos$set(
 #' @seealso [init_sum()], [append_sum()]
 #' @export
 #' @md
-output_sum <- function(step_log = self$config('_step_log'),
-                       name = paste0(self$config('qry_site'), '_steps'),
+output_sum <- function(step_log =config('_step_log'),
+                       name = paste0(config('qry_site'), '_steps'),
                        ...)
   get_argos_default()$output_sum(step_log, name, ...)
 
