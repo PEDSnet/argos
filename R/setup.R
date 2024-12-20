@@ -106,5 +106,5 @@ argos$set(
   function(base_dir, driver = 'driver.R') {
     base_dir <- self$setup(base_dir)
     on.exit(private$.env_cleanup())
-    self$run()
+    .run()
   })
