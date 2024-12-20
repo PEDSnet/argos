@@ -35,7 +35,7 @@ argos$set(
     if ( is.na(Sys.getenv('PEDSNET_SKIP_REQUEST_EXECUTION', unset = NA)) &&
          ! is.null(self$config('execution_mode')) &&
          self$config('execution_mode') == 'distribution' ) {
-      logf <- file(file.path(base_dir,
+      logf <- file(file.path(config('base_dir'),
                              self$config('subdirs')$result_dir,
                              paste0(self$config('qry_site'), '.log')), open = 'wt')
       sink(logf, type = 'output')
