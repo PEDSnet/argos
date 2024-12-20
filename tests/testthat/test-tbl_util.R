@@ -1,6 +1,6 @@
 sess <- argos$new()
 set_argos_default(sess)
-con <- test_db_omop()
+con <- mk_testdb_omop()
 
 test_that('DBI con is NULL if `db` is not a connection (method)', {
   expect_null(sess$dbi_con('not_con'))
