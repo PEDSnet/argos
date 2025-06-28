@@ -24,7 +24,7 @@ argos$set(
     name_map <- self$config('table_names')
     name <- base::ifelse(hasName(name_map, name), name_map[[name]], name)
     if (! is.na(schema_tag)) {
-      if (self$config_exists(schema_tag)) schema_tag <- config(schema_tag)
+      if (self$config_exists(schema_tag)) schema_tag <- self$config(schema_tag)
       if (! is.na(schema_tag)) {
         if (packageVersion('dbplyr') < '2.0.0') { # nocov start
           name <- DBI::dbQuoteIdentifier(self$dbi_con(db), name)
