@@ -267,7 +267,7 @@ argos$set(
     # Conditional logic is a little convoluted here to allow for legacy behavior
     # of allowing Boolean value for db
     if ( is.object(db) || (!is.na(db) && db)) {
-      if (is.logical(db)) db <- config('db_src')
+      if (is.logical(db)) db <- self$config('db_src')
       rname <- self$intermed_name(name, temporary = FALSE, db = db,
                                   results_tag = results_tag, local_tag = local)
       if (any(class(data)  == 'tbl_sql') &&
