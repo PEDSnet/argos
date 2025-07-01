@@ -128,7 +128,8 @@ argos$set(
 #'   name of the data frame as qualified by intermed_name().
 #' @param overwrite Whether to remove an existing table of the same
 #'   name.  Defaults to TRUE, which is different from the dplyr
-#'   function of the same name.
+#'   function of the same name. If it is FALSE, new data will be appended
+#'   to any existing table.
 #' @param temporary Whether the created table should be temporary.
 #'   Defaults to the opposite of `config('retain_intermediates')`.
 #' @param ... Other arguments passed to dplyr::copy_to()
@@ -179,8 +180,8 @@ argos$set(
     if (is.na(.chunk_size)) .chunk_size <- dfsize
     cstart <- 1
     if (.chunk_size < dfsize)
-      cli::cli_progress_bar('Copying data: ', total = 100, clear = FALSE,
-                            format = 'Copying data {cli::pb_bar} {cli::pb_percent}')
+      cli::cli_progress_bar('Writing data', total = 100,
+                            format = 'Writing data {cli::pb_bar} {cli::pb_percent}')
     while (cstart < dfsize) {
       cend <- min(cstart + .chunk_size, dfsize)
       rslt <- dplyr::copy_to(dest = dest,
@@ -251,7 +252,8 @@ argos$set(
 #'   database.
 #' @param append If TRUE, append content to any existing table or file,
 #'   otherwise overwrite any existing content.  Note that it is not possible to
-#'   append a database table or query to an existing database table.
+#'   append a database table or query (i.e. something on which [dbplyr::compute()] could be
+#'   called) to an existing database table.
 #' @param ... Additional arguments passed to the database table creation
 #'   function.
 #'
