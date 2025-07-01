@@ -1,6 +1,6 @@
 Package: argos
 Title: Affordances for Retrieving General Observational Stuff
-Version: 0.1
+Version: 0.2
 Authors@R: 
     c(person("Charles", "Bailey", , "baileyc@chop.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8967-0662")),
