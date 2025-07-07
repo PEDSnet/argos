@@ -186,7 +186,7 @@ argos$set(
       cend <- min(cstart + .chunk_size, dfsize)
       rslt <- dplyr::copy_to(dest = dest,
                              df = slice(ungroup(df), cstart:cend), name = name,
-                             append = TRUE, temporary = temporary, ...)
+                             append = TRUE, overwrite = FALSE, temporary = temporary, ...)
       if (.chunk_size < dfsize) cli::cli_progress_update(set = 100L * cend / dfsize)
       cstart <- cend + 1L
     }
