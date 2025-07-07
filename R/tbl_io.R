@@ -182,7 +182,7 @@ argos$set(
     if (.chunk_size < dfsize)
       cli::cli_progress_bar('Writing data', total = 100,
                             format = 'Writing data {cli::pb_bar} {cli::pb_percent}')
-    while (cstart < dfsize) {
+    while (cstart < dfsize || cstart == 1) {
       cend <- min(cstart + .chunk_size, dfsize)
       rslt <- dplyr::copy_to(dest = dest,
                              df = slice(ungroup(df), cstart:cend), name = name,
