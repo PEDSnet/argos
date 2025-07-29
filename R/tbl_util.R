@@ -48,6 +48,9 @@ argos$set(
     else if (any(class(con) == 'PqConnection') && length(elts) > 1) {
       return(DBI::dbExistsTable(con, DBI::Id(elts)))
     }
+    else if (any(class(con) == 'PrestoConnection') && length(elts) > 1) {
+      return(DBI::dbExistsTable(con, DBI::Id(elts)))
+    }
     else {
       return(DBI::dbExistsTable(con, elts))
     }
