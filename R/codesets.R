@@ -73,6 +73,8 @@ argos$set(
 #'   differ from `name`.
 #' @param indexes A list of columns on which indexes should be created.
 #' @param db A connection to the database into which to load the codeset.
+#' @param .chunk_size An integer specifying that the data should be written
+#'   out in chunks of the specified number of rows.
 #'
 #' @return A tbl pointing to the table in the database
 #' @export
@@ -99,7 +101,8 @@ load_codeset <- function(name,
                          table_name = name,
                          indexes = list('concept_id'),
                          full_path = FALSE,
-                         db = config('db_src'))
+                         db = config('db_src'),
+                         .chunk_size = NA)
   get_argos_default()$load_codeset(name, col_types, table_name, indexes,
                                    full_path, db)
 
@@ -109,7 +112,7 @@ argos$set(
   #' @inherit load_codeset
   function(name, col_types = 'iccc', table_name = name,
            indexes = list('concept_id'), full_path = FALSE,
-           db = self$config('db_src')) {
+           db = self$config('db_src'), .chunk_size = NA) {
 
     if (self$config('cache_enabled')) {
       if (is.null(self$config('_codesets'))) self$config('_codesets', list())
@@ -122,7 +125,8 @@ argos$set(
                                          full_path = full_path),
                        name = table_name,
                        overwrite = TRUE,
-                       indexes = indexes)
+                       indexes = indexes,
+                       .chunk_size = .chunk_size)
 
     if (self$config('cache_enabled')) {
       cache[[name]] <- codes
