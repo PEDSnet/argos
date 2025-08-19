@@ -102,7 +102,7 @@ load_codeset <- function(name,
                          indexes = list('concept_id'),
                          full_path = FALSE,
                          db = config('db_src'),
-                         .chunk_size = NA)
+                         .chunk_size = 5000)
   get_argos_default()$load_codeset(name, col_types, table_name, indexes,
                                    full_path, db)
 
@@ -112,7 +112,7 @@ argos$set(
   #' @inherit load_codeset
   function(name, col_types = 'iccc', table_name = name,
            indexes = list('concept_id'), full_path = FALSE,
-           db = self$config('db_src'), .chunk_size = NA) {
+           db = self$config('db_src'), .chunk_size = 5000) {
 
     if (self$config('cache_enabled')) {
       if (is.null(self$config('_codesets'))) self$config('_codesets', list())
