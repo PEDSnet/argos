@@ -104,7 +104,7 @@ load_codeset <- function(name,
                          db = config('db_src'),
                          .chunk_size = 5000)
   get_argos_default()$load_codeset(name, col_types, table_name, indexes,
-                                   full_path, db)
+                                   full_path, db, .chunk_size)
 
 argos$set(
   'public', 'load_codeset',
