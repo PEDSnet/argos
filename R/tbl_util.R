@@ -45,11 +45,14 @@ argos$set(
                               DBI::dbQuoteString(con, elts[1]), sep = ""))
       return(as.logical(dim(res)[1]))
     }
-    else if (any(class(con) == 'PqConnection') && length(elts) > 1) {
-      return(DBI::dbExistsTable(con, DBI::Id(elts)))
-    }
     else {
-      return(DBI::dbExistsTable(con, elts))
+      if (packageVersion('DBI') < '0.8') {
+        # DBI < 0.8 does not support dbExistsTable with Id objects
+        return(DBI::dbExistsTable(con, elts))
+      }
+      else {
+        return(DBI::dbExistsTable(con, DBI::Id(elts)))
+      }
     }
   })
 
