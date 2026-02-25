@@ -252,7 +252,7 @@ argos$set(
 #'   database.
 #' @param append If TRUE, append content to any existing table or file,
 #'   otherwise overwrite any existing content.  Note that it is not possible to
-#'   append a database table or query (i.e. something on which [dbplyr::compute()] could be
+#'   append a database table or query (i.e. something on which [dplyr::compute()] could be
 #'   called) to an existing database table.
 #' @param ... Additional arguments passed to the database table creation
 #'   function.
