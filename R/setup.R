@@ -54,14 +54,14 @@ argos$set(
            driver = 'driver.R') {
     source(file.path(here, 'code', 'req_info.R'))
     source(config('site_info'))
-    for (fn in list.files(file.path(here, config('subdirs')$code_dir),
+    for (fn in list.files(file.path(here, config('subdirs')$code),
                           'cohort_.+\\.R', full.names = TRUE))
       source(fn)
-    for (fn in list.files(file.path(here, config('subdirs')$code_dir),
+    for (fn in list.files(file.path(here, config('subdirs')$code),
                         'analyze_.+\\.R', full.names = TRUE))
       source(fn)
-    source(file.path(here, config('subdirs')$code_dir, 'cohorts.R'))
-    source(file.path(here, config('subdirs')$code_dir, driver))
+    source(file.path(here, config('subdirs')$code, 'cohorts.R'))
+    source(file.path(here, config('subdirs')$code, driver))
 
     private$.setup_pkgs()
 

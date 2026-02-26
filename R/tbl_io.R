@@ -204,7 +204,7 @@ argos$set(
   dirs <- self$config('subdirs')
   self$collect_new(data) %>%
     write_csv(file.path(self$config('base_dir'),
-                        base::ifelse(local, dirs$local_dir, dirs$result_dir),
+                        base::ifelse(local, dirs$local, dirs$results),
                         paste0(name, '.csv')), na = '', append = append)
 }
 

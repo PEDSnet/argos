@@ -3,7 +3,7 @@
 #' This function uses the codeset name to build a path to a CSV file
 #' in the data request package containing the codeset data.
 #'
-#' The default expects the file to be in the spec_dir directory, to have a
+#' The default expects the file to be in the specs subdirectory, to have a
 #' header, and to contain four columns:
 #'
 #'  * concept_id - integer
@@ -51,7 +51,7 @@ argos$set(
     path <-
       if_else(full_path, name,
               file.path(self$config('base_dir'),
-                        self$config('subdirs')$spec_dir,
+                        self$config('subdirs')$specs,
                         paste0(name, '.csv')))
     read_csv(path, col_names = TRUE, col_types = col_types)
   })

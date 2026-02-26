@@ -36,7 +36,7 @@ argos$set(
          ! is.null(self$config('execution_mode')) &&
          self$config('execution_mode') == 'distribution' ) {
       logf <- file(file.path(base_dir,
-                             self$config('subdirs')$result_dir,
+                             self$config('subdirs')$results,
                              paste0(self$config('qry_site'), '.log')), open = 'wt')
       sink(logf, type = 'output')
       sink(logf, type = 'message')
