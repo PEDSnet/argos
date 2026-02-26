@@ -187,6 +187,8 @@ argos$set(
                      self$config(k,v)
                    }
                  })
+    private$.setup_pkgs()
+    private$.env_setup()
     self
   })
 

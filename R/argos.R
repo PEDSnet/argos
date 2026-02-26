@@ -23,7 +23,8 @@ argos <-
               if (is.null(get_argos_default())) set_argos_default(self)
             }
           ),
-          private = list('req_env' = NULL)
+          private = list('req_env' = NULL,
+                         'finalizer' = function() { private$.env_cleanup() } )
   )
 
 #' Get the default `argos` session
