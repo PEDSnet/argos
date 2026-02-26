@@ -42,9 +42,9 @@ argos$set(
       sink(logf, type = 'message')
     }
 
-    config('can_explain',
-           !is.na(tryCatch(db_explain(self$config('db_src'), 'select 1 = 1'),
-                           error = function(e) NA)))
+    self$config('can_explain',
+                !is.na(tryCatch(db_explain(self$config('db_src'), 'select 1 = 1'),
+                                error = function(e) NA)))
 
     if (packageVersion('dbplyr') < '1.3.1') {
       assignInNamespace('arrange.tbl_lazy',
