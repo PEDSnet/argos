@@ -34,8 +34,10 @@
 #' @export
 #' @md
 compute_new <- function(tblx,
-                        name = paste0(sample(letters, 12, replace = TRUE),
-                                      collapse = ""),
+                        name = paste0(
+                                 "tmp_argos_",
+                                 paste0(sample(letters, 12, replace = TRUE), collapse = "")
+                               ),
                         temporary = ! config('retain_intermediates'),
                         ...)
   get_argos_default()$compute_new(tblx, name, temporary, ...)
@@ -45,8 +47,10 @@ argos$set(
   #' @name compute_new-method
   #' @inherit compute_new
   function(tblx,
-           name = paste0(sample(letters, 12, replace = TRUE),
-                         collapse = ""),
+           name = paste0(
+                    "tmp_argos_",
+                    paste0(sample(letters, 12, replace = TRUE), collapse = "")
+                  ),
            temporary = ! self$config('retain_intermediates'),
            ...) {
     if (!inherits(name, c('ident_q', 'dbplyr_schema')) && length(name) == 1) {
