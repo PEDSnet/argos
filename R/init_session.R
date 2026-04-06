@@ -247,17 +247,18 @@ argos$set(
   {
     cand <- srcr::find_config_files(...)
     if (length(cand) < 1)
-      cli::abort("No config paths found at {.var {as.list(...)}}")
+      cli::cli_abort("No config paths found at {.var {as.list(...)}}")
 
-    for (p in paths) {
-      config <- tryCatch(do.call(.read_fn, list(p)), error = function(e) NA)
-      if (!is.na(config[1])) {
-        if (! exists(.conf_key, config)) next
-        conf <- config[[.conf_key]]
-        if (.use_srcr) conf[['db_src']] <- do.call(srcr::srcr, config)
+    for (p in cand) {
+      cfdata <- tryCatch(do.call(.read_fn, list(p)), error = function(e) NA)
+      if (!is.na(cfdata[1])) {
+        if (! exists(.conf_key, cfdata)) next
+        conf <- cfdata[[.conf_key]]
+        if (.use_srcr)
+          conf[['db_src']] <- do.call(srcr::srcr, list('config' = cfdata))
         return(rlang::inject(self$init_session(!!!conf)))
       }
     }
 
-    cli::abort("No valid config files found in {.path {paths}}")
+    cli::cli_abort("No valid config files found in {.path {cand}}")
   })
