@@ -81,8 +81,10 @@ argos$set(
 #' @return The resultant name
 #' @export
 #' @md
-intermed_name <- function(name = paste0(sample(letters, 12, replace = TRUE),
-                                           collapse = ""),
+intermed_name <- function(name = paste0(
+                                   "tmp_argos_",
+                                   paste0(sample(letters, 12, replace = TRUE), collapse = "")
+                                 ),
                           temporary = ! config('retain_intermediates'),
                           results_tag =  TRUE,
                           local_tag = NA,
@@ -96,8 +98,10 @@ argos$set(
   'public', 'intermed_name',
   #' @name intermed_name-method
   #' @inherit intermed_name
-  function(name = paste0(sample(letters, 12, replace = TRUE),
-                         collapse = ""),
+  function(name = paste0(
+                    "tmp_argos_",
+                    paste0(sample(letters, 12, replace = TRUE), collapse = "")
+                  ),
            temporary = ! self$config('retain_intermediates'),
            results_tag =  TRUE,
            local_tag = NA,
