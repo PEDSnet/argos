@@ -254,9 +254,10 @@ argos$set(
       if (!is.na(cfdata[1])) {
         if (! exists(.conf_key, cfdata)) next
         conf <- cfdata[[.conf_key]]
+        cfdata <- cfdata[!names(cfdata) %in% .conf_key]
         if (.use_srcr)
-          conf[['db_src']] <- do.call(srcr::srcr, list('config' = cfdata))
-        return(rlang::inject(self$init_session(!!!conf)))
+          cfdata[['db_src']] <- do.call(srcr::srcr, list('config' = conf))
+        return(rlang::inject(self$init_session(!!!cfdata)))
       }
     }
 
