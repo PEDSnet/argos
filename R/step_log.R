@@ -29,7 +29,7 @@
 #' @export
 #' @md
 init_sum <- function(..., set_default = TRUE)
-  get_argos_default()$init_sum(..., set_default)
+  get_argos_default()$init_sum(..., set_default = TRUE)
 
 argos$set(
   'public', 'init_sum',
