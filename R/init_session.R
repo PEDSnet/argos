@@ -170,10 +170,13 @@ argos$set(
       if (typeof(db_src) == 'character') db_src <- srcr::srcr(db_src)
       if (! is.object(db_src) ||
           # duck type for DBI
-          ! any(attr(methods(class = class(db_src)), 'info')$generic
-                == 'dbGetQuery'))
+          # ! any(attr(utils::methods(class = class(db_src)), 'info')$generic
+          #       == 'dbGetQuery') ||
+          ! methods::is(db_src, "DBIConnection")
+          )
         cli::cli_abort('{.var db_src} must be a DBI connection')
     }
+
     if (! file.exists(base_dir))
       cli::cli_abort('{.var base_dir} must point to an existing directory')
 
