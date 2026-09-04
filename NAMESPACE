@@ -50,10 +50,14 @@ importFrom(cli,cli_abort)
 importFrom(dbplyr,in_schema)
 importFrom(glue,glue)
 importFrom(lifecycle,deprecated)
-importFrom(readr,read_csv)
-importFrom(readr,write_csv)
-importFrom(rlang,"!!!")
-importFrom(rlang,"!!")
-importFrom(rlang,":=")
-importFrom(rlang,dots_list)
+importFrom(readr,
+  read_csv,
+  write_csv
+)
+importFrom(rlang,
+  "!!!",
+  "!!",
+  ":=",
+  dots_list
+)
 importFrom(srcr,srcr)

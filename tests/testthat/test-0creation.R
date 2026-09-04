@@ -37,6 +37,10 @@ test_that('Turning off default session works', {
   expect_true(is.na(argos::get_argos_default()))
 })
 
+test_that('Session errors with improper input', {
+  expect_error(set_argos_default('test'))
+})
+
 test_that('Default session does not reset after turning off', {
   sess <- argos$new(name = 'test default')
   expect_true(is.na(argos::get_argos_default()))

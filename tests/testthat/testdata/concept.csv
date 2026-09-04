@@ -1,0 +1,7 @@
+concept_id,concept_name,domain_id,vocabulary_id,concept_code
+9201,inpatient visit,Visits,SNOMED,IP
+9202,outpatient visit,Visits,SNOMED,OP
+2000001532,inpatient ongoing visit,Visits,SNOMED,IPOG
+2000000048,ed to inpatient visit,Visits,SNOMED,EDIP
+2000000469,outpatient non-physician visit,Visits,SNOMED,OPNP
+581399,telehealth visit,Visits,SNOMED,TH

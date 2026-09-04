@@ -15,10 +15,12 @@ mk_testdb_omop <- function(){
     'location' = 'iccccccc',
     'observation' = 'iiiDTiidiiddiccicc',
     'observation_period' = 'iiDDi',
-    'person' = 'iiiiiTiiiiiccicici',
+    'person' = 'ciiiiiTiiiiicciciciDD',
     'procedure_occurrence' = 'iiiDiidiicic',
     'provider' = 'iccciiiiccici',
-    'visit_occurrence' = 'iiiDtDtiiici')
+    'visit_occurrence' = 'iiiDtDtiiici',
+    'concept_ancestor' = 'iicc',
+    'concept' = 'icccc')
   for (file_name in list.files(path='testdata', pattern = "\\.csv$")) {
     # Get table_name from csv file_name without extension
     table_name <- sub('\\.csv$', '', file_name)
