@@ -174,7 +174,7 @@ argos$set(
   function(codeset, table_name = NA) {
     if (is.null(table_name)) {
       if (any(class(codeset) == 'tbl_dbi')) {
-        table_name <- remote_name(codeset)
+        table_name <- dbplyr::remote_name(codeset)
         if (! is.null(table_name)) table_name <- paste0(table_name, '_exp')
       }
       if (is.null(table_name))
